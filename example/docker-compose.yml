@@ -1,0 +1,81 @@
+version: '2'
+
+services:
+
+  ftp:
+    image: webdevops/vsftp
+    environment:
+      FTP_USER: thisisme
+      FTP_PASSWORD: thisismypass
+    volumes:
+      - "./run/ftp:/data/ftp"
+
+  config:
+    image: sgs-content
+    volumes:
+      - ./run/config:/data/secoora/dev/config
+    command: /sbin/my_init -- secoora_config_sync
+
+  gutils:
+    image: gutils
+    environment:
+      GUTILS_FTP_URL: ftp
+      GUTILS_FTP_USER: thisisme
+      GUTILS_FTP_PASS: thisismypass
+      RUN_BINARY_TO_ASCII_WATCH: "yes"
+      RUN_ASCII_TO_NETCDF_WATCH: "yes"
+      RUN_NETCDF_TO_FTP_WATCH: "yes"
+      RUN_NETCDF_TO_ERDDAP_WATCH: "yes"
+      GUTILS_NETCDF_TEMPLATE: ioos_ngdac
+    volumes:
+      - "./run/binary:/gutils/binary"
+      - "./run/ascii:/gutils/ascii"
+      - "./run/netcdf:/gutils/netcdf"
+      - "./run/config:/gutils/config:ro"
+      - "./run/erddap/content:/gutils/erddap/content"
+      - "./run/erddap/flag:/gutils/erddap/flag"
+    depends_on:
+      - ftp
+      - config
+
+  browse:
+    image: nginx:stable
+    volumes:
+      - "./nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "./run/binary:/gutils/binary:ro"
+      - "./run/ascii:/gutils/ascii:ro"
+      - "./run/netcdf:/gutils/netcdf:ro"
+      - "./run/config:/gutils/config:ro"
+      - "./run/ftp:/gutils/ftp:ro"
+    ports:
+      - "20000:80"
+
+  erddap:
+    image: axiom/docker-erddap
+    volumes:
+      - "./run/erddap/content/datasets.xml:/usr/local/tomcat/content/erddap/datasets.xml"
+      - "./run/erddap/flag:/erddapData/flag"
+      - "./run/netcdf:/gutils/netcdf:ro"
+    ports:
+      - "8080:8080"
+
+  # data1:
+  #   image: sgs-content
+  #   volumes:
+  #     - ./run/binary:/data/secoora/dev/binary
+  #   command: /sbin/my_init -- sleep 30; secoora_skio_dl ramses-20170905T1728 "ramses-2017-24[0-9]-*.*bd"
+  #   depends_on:
+  #     - ftp
+  #     - config
+  #     - gutils
+
+  # data2:
+  #   image: sgs-content
+  #   volumes:
+  #     - ./run/binary:/data/secoora/dev/binary
+  #     - /home/kwilcox/.ssh/usf_gliders:/usf.key
+  #   command: /sbin/my_init -- sleep 30; secoora_usf_dl bass-20171031T0000 default "*.*bd"
+  #   depends_on:
+  #     - ftp
+  #     - config
+  #     - gutils

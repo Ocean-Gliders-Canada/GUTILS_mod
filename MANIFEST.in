@@ -1,0 +1,8 @@
+include *.txt
+include LICENSE
+include VERSION
+include README.md
+include gutils/tests *.txt
+recursive-include gutils/slocum/bin *
+recursive-include gutils/templates *.json *.xml
+recursive-include gutils/tests/resources *.tbd *.sbd *.ebd *.dbd *.json *.dat *.cac *.nc

@@ -1,0 +1,57 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# VIM Swap Files
+*.swp
+
+.cache
+.anaconda
+
+gutils/tests/output/
+gutils/tests/resources/slocum/real/ascii/**/*.dat
+gutils/tests/resources/slocum/real/netcdf/**/*.nc
+gutils/tests/resources/slocum/merge/output/
+example/run/**/*.nc
+example/run/**/*.dat
+example/run/ftp/*
+example/run/config/*
+example/run/binary/*
+example/run/erddap/content/*.xml
+example/run/erddap/flag/*
+docs/_site
+docs/api
+docs/notebooks/.ipynb_checkpoints/
+.env
+.pytest_cache
