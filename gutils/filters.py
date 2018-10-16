@@ -3,7 +3,7 @@
 import pandas as pd
 
 from gutils.yo import assign_profiles
-from gutils.profile_adjust import reassign_profile_id
+from mod.profile_adjust import reassign_profile_id  # MOD
 import logging
 L = logging.getLogger(__name__)
 
@@ -116,7 +116,7 @@ def process_dataset(file, reader_class, tsint=None, filter_z=None, filter_points
 
         # Find profile breaks
         profiles = assign_profiles(data, tsint=tsint)
-        profiles = reassign_profile_id(profiles)
+        profiles = reassign_profile_id(profiles)   # MOD
         # Shortcut for empty dataframes
         if profiles is None:
             return None, None
