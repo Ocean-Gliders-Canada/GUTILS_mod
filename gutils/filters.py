@@ -3,7 +3,7 @@
 import pandas as pd
 
 from gutils.yo import assign_profiles
-from mod.profile_adjust import reassign_profile_id  # MOD
+from gutils.profile_adjust import reassign_profile_id  # MOD
 import logging
 L = logging.getLogger(__name__)
 

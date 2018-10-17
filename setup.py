@@ -13,8 +13,7 @@ def version():
         return f.read().strip()
 
 
-#reqs = [line.strip() for line in open('requirements.txt') if not line.startswith('#')]  # MOD
-reqs=[]  # MOD, use environment.yml
+reqs = [line.strip() for line in open('requirements.txt') if not line.startswith('#')]
 
 
 setup(
