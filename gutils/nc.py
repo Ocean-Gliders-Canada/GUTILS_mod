@@ -364,6 +364,8 @@ def create_netcdf(attrs, data, output_path, mode, profile_id_type=ProfileIdTypes
             L.exception('Error creating netCDF for profile {}. Skipping.'.format(pi))
             continue
 
+    #test the merge request
+
     return written_files
 
 
