@@ -355,11 +355,11 @@ def create_netcdf(attrs, data, output_path, mode, profile_id_type=ProfileIdTypes
         )
         data = data.drop(orphans, axis=1)
 
-    written = []
+    #written = []
     for pi, profile in data.groupby('profile'):
         try:
             cr = create_profile_netcdf(attrs, profile, output_path, mode, profile_id_type)
-            written.append(cr)
+            written_files.append(cr)
         except BaseException:
             L.exception('Error creating netCDF for profile {}. Skipping.'.format(pi))
             continue
