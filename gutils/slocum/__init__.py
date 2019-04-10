@@ -131,29 +131,30 @@ class SlocumReader(object):
         variable. - Kerfoot
         """
         # Search for a 'pressure' column
-        for p in self.PRESSURE_SENSORS:
-            if p in df.columns:
-                # Convert bar to dbar here
-                df['pressure'] = df[p].copy() * 10
-                # Calculate depth from pressure and latitude
-                # Negate the results so that increasing values note increasing depths
-                df['z'] = -z_from_p(df.pressure, df.y)
-                break
-
-        if 'z' not in df and 'pressure' not in df:
-            # Search for a 'z' column
-            for p in self.DEPTH_SENSORS:
-                if p in df.columns:
-                    df['z'] = df[p].copy()
-                    # Calculate pressure from depth and latitude
-                    # Negate the results so that increasing values note increasing depth
-                    df['pressure'] = -p_from_z(df.z, df.y)
-                    break
+        # for p in self.PRESSURE_SENSORS:
+        #     if p in df.columns:
+        #         # Convert bar to dbar here
+        #         df['pressure'] = df[p].copy() * 10
+        #         # Calculate depth from pressure and latitude
+        #         # Negate the results so that increasing values note increasing depths
+        #         df['z'] = -z_from_p(df.pressure, df.y)
+        #         break
+        #
+        # if 'z' not in df and 'pressure' not in df:
+        #     # Search for a 'z' column
+        #     for p in self.DEPTH_SENSORS:
+        #         if p in df.columns:
+        #             df['z'] = df[p].copy()
+        #             # Calculate pressure from depth and latitude
+        #             # Negate the results so that increasing values note increasing depth
+        #             df['pressure'] = -p_from_z(df.z, df.y)
+        #             break
         # End Option 1
 
         """
         ---- Option 2: Use raw pressure/depth data that was sent across ----
         # Standardize to the 'pressure' column
+        """
         for p in self.PRESSURE_SENSORS:
             if p in df.columns:
                 # Convert bar to dbar here
@@ -177,7 +178,7 @@ class SlocumReader(object):
             # Negate the results so that increasing values note increasing depth
             df['pressure'] = -p_from_z(df.z, df.y)
         # End Option 2
-        """
+
 
         rename_columns = {
             'm_water_vx': 'u_orig',
