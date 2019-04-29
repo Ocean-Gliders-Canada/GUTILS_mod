@@ -364,14 +364,14 @@ do
         if [ -n "$sensor_filter" ]
         then
             # Filter the sensors that will go into the file
-            $dbd2asc -o \
+            $dbd2asc \
                 -c $local_cac_dir \
                 $dbdSource | \
                 $dba_sensor_filter -f $sensor_filter \
                 > $dbdDba;
         else
             # Include all sensors
-            $dbd2asc -o \
+            $dbd2asc \
                 -c $local_cac_dir \
                 $dbdSource > \
                 $dbdDba;
@@ -391,14 +391,14 @@ do
         if [ -n "$sensor_filter" ]
         then
             # Filter the sensors that will go into the file
-            $dbd2asc -o \
+            $dbd2asc \
                 -c $local_cac_dir \
                 $sciSource | \
                 $dba_sensor_filter -f $sensor_filter \
                 > $sciDba;
         else
             # Include all sensors
-            $dbd2asc -o \
+            $dbd2asc \
                 -c $local_cac_dir \
                 $sciSource > \
                 $sciDba;
@@ -483,14 +483,14 @@ do
         if [ -n "$sensor_filter" ]
         then
             # Filter the sensors that will go into the file
-            $dbd2asc -o \
+            $dbd2asc \
                 -c $local_cac_dir \
                 $dbdSource | \
                 $dba_sensor_filter -f $sensor_filter \
                 > $dbdDba;
         else
             # Include all sensors
-            $dbd2asc -o \
+            $dbd2asc \
                 -c $local_cac_dir \
                 $dbdSource > \
                 $dbdDba;
