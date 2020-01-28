@@ -32,7 +32,7 @@ def merge_binary(source_directory, destination_directory, cache_directory=None, 
             merge_file = file_name + '.edba'
             command_merge_files = './bin/dba_merge ' + os.path.join(ascii_dir, flight_file) + ' ' + os.path.join(ascii_dir, science_file) + ' > ' + os.path.join(destination_directory, merge_file)
             os.system(command_merge_files)
-        print('Wrote merge file(s) in', destination_directory)
+    print('Wrote merge file(s) in', destination_directory)
 
 
 
