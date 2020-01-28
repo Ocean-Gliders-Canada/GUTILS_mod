@@ -13,3 +13,6 @@ dependencies:
 - scipy
 - six
 - whichcraft
+- pip
+- pip:
+    - git+https://gitlab.oceantrack.org/ceotr-public/dinkum.git@GD-57
