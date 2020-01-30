@@ -54,13 +54,14 @@ class TestSlocumMerger(GutilsTestClass):
             globs=['usf-bass-2014-048-0-0.tbd', 'usf-bass-2014-048-0-0.sbd']
         )
         p = merger.convert()
-        assert p == [{
+        res = [{
             'ascii': os.path.join(self.ascii_path, 'usf_bass_2014_048_0_0_sbd.dat'),
             'binary': sorted([
                 os.path.join(self.binary_path, 'usf-bass-2014-048-0-0.sbd'),
                 os.path.join(self.binary_path, 'usf-bass-2014-048-0-0.tbd')
             ]),
         }]
+        assert p == res
         assert len(glob(os.path.join(self.ascii_path, '*.dat'))) == 1
 
 

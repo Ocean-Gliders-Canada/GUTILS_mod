@@ -245,11 +245,12 @@ class SlocumMerger(object):
 
         globs = globs or ['*']
 
-        self.tmpdir = mkdtemp(prefix='gutils_convert_')
         self.matched_files = []
         self.cache_directory = cache_directory or source_directory
         self.destination_directory = destination_directory
         self.source_directory = source_directory
+        safe_makedirs(destination_directory)
+        self.tmpdir = mkdtemp(dir=source_directory)
 
         mf = set()
         for g in globs:
@@ -284,24 +285,12 @@ class SlocumMerger(object):
             tmpf = os.path.join(self.tmpdir, fname)
             shutil.copy2(f, tmpf)
 
-        safe_makedirs(self.destination_directory)
-
         # Run conversion script
-        convert_binary_path = os.path.join(
-            os.path.dirname(__file__),
-            'bin',
-            'convertDbds.sh'
-        )
-        pargs = [
-            convert_binary_path,
-            '-q',
-            '-p',
-            '-c', self.cache_directory
-        ]
-
+        convert_binary_path = os.path.join(os.path.dirname(__file__), 'converDbds.py')
+        pargs = ['python', convert_binary_path]
         pargs.append(self.tmpdir)
         pargs.append(self.destination_directory)
-
+        pargs.append(self.cache_directory)
         command_output, return_code = generate_stream(pargs)
 
         # Return
