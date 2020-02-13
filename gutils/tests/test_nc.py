@@ -129,7 +129,7 @@ class TestCreateGliderScript(GutilsTestClass):
         out_base = resource('slocum', 'real', 'netcdf', 'modena-2015')
 
         args = dict(
-            file=resource('slocum', 'test_dbd.dat'),
+            file=resource('slocum', 'modena_2015_175_0_9_dbd.dat'),
             reader_class=SlocumReader,
             config_path=resource('slocum', 'config', 'modena-2015'),
             output_path=out_base,
@@ -146,22 +146,22 @@ class TestCreateGliderScript(GutilsTestClass):
 
         output_files = sorted(os.listdir(out_base))
         output_files = [ os.path.join(out_base, o) for o in output_files ]
-        # assert len(output_files) == 6
-        #
-        # # First profile
-        # with nc4.Dataset(output_files[0]) as ncd:
-        #     assert ncd.variables['profile_id'].ndim == 0
-        #     assert ncd.variables['profile_id'][0] == 1435257435
-        #
-        # # Last profile
-        # with nc4.Dataset(output_files[-1]) as ncd:
-        #     assert ncd.variables['profile_id'].ndim == 0
-        #     assert ncd.variables['profile_id'][0] == 1435264145
-        #
-        # # Check netCDF file for compliance
-        # ds = namedtuple('Arguments', ['file'])
-        # for o in output_files:
-        #     assert check_dataset(ds(file=o)) == 0
+        assert len(output_files) == 6
+
+        # First profile
+        with nc4.Dataset(output_files[0]) as ncd:
+            assert ncd.variables['profile_id'].ndim == 0
+            assert ncd.variables['profile_id'][0] == 1435257435
+
+        # Last profile
+        with nc4.Dataset(output_files[-1]) as ncd:
+            assert ncd.variables['profile_id'].ndim == 0
+            assert ncd.variables['profile_id'][0] == 1435264145
+
+        # Check netCDF file for compliance
+        ds = namedtuple('Arguments', ['file'])
+        for o in output_files:
+            assert check_dataset(ds(file=o)) == 0
 
 
 class TestGliderCheck(GutilsTestClass):
