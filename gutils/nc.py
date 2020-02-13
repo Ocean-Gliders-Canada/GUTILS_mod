@@ -13,7 +13,9 @@ import tempfile
 from glob import glob
 from datetime import datetime
 from collections import OrderedDict
-
+import numpy as np
+from pocean.utils import get_dtype
+from pocean.meta import untype_attributes
 import netCDF4 as nc4
 from compliance_checker.runner import ComplianceChecker, CheckSuite
 from pocean.utils import dict_update, get_fill_value
@@ -198,6 +200,32 @@ def get_creation_attributes(profile):
     }
 
 
+def create_level0_netcdf(attrs, data, unit, file_name, output_path):
+    file_name = file_name.replace('.', '_') + '.nc'
+    output_file = os.path.join(output_path, file_name)
+    nc = nc4.Dataset(output_file, 'w')
+    default_dimensions = 'obs'
+    nc.createDimension(default_dimensions, None)
+    data_columns = data.columns
+    if data['m_present_time'] is not None:
+        time = 'm_present_time'
+    else:
+        time = 'sci_m_present_time'
+    var = nc.createVariable('time', get_dtype(data[time]), default_dimensions)
+    nc.variables['time'][:] = np.array(data[time])
+    var.setncattr('units', 'seconds since 1970-01-01T00:00:00Z')
+    var.setncattr('calendar', 'gregorian')
+    for var_name in data_columns:
+        var = nc.createVariable(var_name, get_dtype(data[var_name]), default_dimensions)
+        nc.variables[var_name][:] = np.array(data[var_name])
+        var.setncattr('units', unit[var_name][0])
+    gs = attrs.get('attributes', OrderedDict())
+    if gs.get('cdm_data_type'):
+        gs['cdm_data_type'] = "Other"
+    typed_gs = untype_attributes(gs)
+    nc.setncatts(typed_gs)
+
+
 def create_profile_netcdf(attrs, profile, output_path, mode, profile_id_type=ProfileIdTypes.EPOCH):
     try:
         # Path to hold file while we create it
@@ -331,31 +359,42 @@ def create_profile_netcdf(attrs, profile, output_path, mode, profile_id_type=Pro
             os.remove(tmp_path)
 
 
+def remove_variable_without_metadata(attrs, data):
+    all_columns = set(data.columns)
+    reserved_columns = [
+        'trajectory',
+        'profile',
+        't',
+        'x',
+        'y',
+        'z',
+        'u_orig',
+        'v_orig'
+    ]
+    removable_columns = all_columns - set(reserved_columns)
+    orphans = removable_columns - set(attrs.get('variables', {}).keys())
+    L.debug(
+        "Excluded from output (absent from JSON config):\n  * {}".format('\n  * '.join(orphans))
+    )
+    data = data.drop(orphans, axis=1)
+    return data
+
+
+def create_raw_netcdf(attrs, data, output_path, subset=True):
+    written_files = []
+    if subset is True:
+        data = remove_variable_without_metadata(attrs, data)
+
+    return written_files
+
+
 def create_netcdf(attrs, data, output_path, mode, profile_id_type=ProfileIdTypes.EPOCH, subset=True):
     # Create NetCDF Files for Each Profile
     written_files = []
 
     # Optionally, remove any variables from the dataframe that do not have metadata assigned
     if subset is True:
-        all_columns = set(data.columns)
-        reserved_columns = [
-            'trajectory',
-            'profile',
-            't',
-            'x',
-            'y',
-            'z',
-            'u_orig',
-            'v_orig'
-        ]
-        removable_columns = all_columns - set(reserved_columns)
-        orphans = removable_columns - set(attrs.get('variables', {}).keys())
-        L.debug(
-            "Excluded from output (absent from JSON config):\n  * {}".format('\n  * '.join(orphans))
-        )
-        data = data.drop(orphans, axis=1)
-
-    #written = []
+        data = remove_variable_without_metadata(attrs, data)
     for pi, profile in data.groupby('profile'):
         try:
             cr = create_profile_netcdf(attrs, profile, output_path, mode, profile_id_type)
@@ -444,6 +483,15 @@ def create_dataset(file, reader_class, config_path, output_path, subset, templat
     attrs = read_attrs(config_path, template=template)
 
     return create_netcdf(attrs, processed_df, output_path, mode, profile_id_type, subset=subset)
+
+
+def create_raw_dataset(file, reader_class, config_path, output_path, template):
+    file_name = os.path.basename(file)
+    reader = reader_class(file)
+    data = reader.data
+    unit = reader.unit
+    attrs = read_attrs(config_path, template=template)
+    create_level0_netcdf(attrs, data, unit, file_name, output_path)
 
 
 def main_create():

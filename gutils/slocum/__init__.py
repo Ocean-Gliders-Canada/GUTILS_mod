@@ -308,23 +308,6 @@ class SlocumMerger(object):
         pargs.append(self.destination_directory)
         pargs.append(self.cache_directory)
         command_output, return_code = generate_stream(pargs)
-        # ----------------------
-        # convert_binary_path = os.path.join(
-        #     os.path.dirname(__file__),
-        #     'bin',
-        #     'convertDbds.sh'
-        # )
-        # pargs = [
-        #     convert_binary_path,
-        #     '-q',
-        #     '-p',
-        #     '-c', self.cache_directory
-        # ]
-        #
-        # pargs.append(self.tmpdir)
-        # pargs.append(self.destination_directory)
-        # command_output, return_code = generate_stream(pargs)
-        # ----------------------
 
         # Return
         processed = []
