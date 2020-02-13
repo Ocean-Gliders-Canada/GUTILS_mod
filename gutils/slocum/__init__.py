@@ -4,6 +4,7 @@ import shutil
 from glob import glob
 from tempfile import mkdtemp
 from collections import OrderedDict
+import converDbds
 
 import numpy as np
 import pandas as pd
@@ -39,7 +40,7 @@ class SlocumReader(object):
 
     def __init__(self, ascii_file):
         self.ascii_file = ascii_file
-        self.metadata, self.data = self.read()
+        self.metadata, self.data, self.unit = self.read()
 
         # Set the mode to 'rt' or 'delayed'
         self.mode = None
@@ -73,7 +74,17 @@ class SlocumReader(object):
             sep=' ',
             skip_blank_lines=True,
         )
-        return metadata, df
+        unit = pd.read_csv(
+            self.ascii_file,
+            index_col=False,
+            skiprows=15,
+            header=None,
+            nrows=1,
+            names=headers,
+            sep=' ',
+            skip_blank_lines=True,
+        )
+        return metadata, df, unit
 
     def standardize(self, gps_prefix=None):
 
@@ -278,6 +289,10 @@ class SlocumMerger(object):
         # Remove tmpdir
         shutil.rmtree(self.tmpdir)
 
+    def decode(self):
+        converDbds.decode_binary(self.source_directory, self.destination_directory, self.cache_directory,
+                                 need_merge=False)
+
     def convert(self):
         # Copy to tempdir
         for f in self.matched_files:
@@ -286,12 +301,30 @@ class SlocumMerger(object):
             shutil.copy2(f, tmpf)
 
         # Run conversion script
+        # ----------------------
         convert_binary_path = os.path.join(os.path.dirname(__file__), 'converDbds.py')
         pargs = ['python', convert_binary_path]
         pargs.append(self.tmpdir)
         pargs.append(self.destination_directory)
         pargs.append(self.cache_directory)
         command_output, return_code = generate_stream(pargs)
+        # ----------------------
+        # convert_binary_path = os.path.join(
+        #     os.path.dirname(__file__),
+        #     'bin',
+        #     'convertDbds.sh'
+        # )
+        # pargs = [
+        #     convert_binary_path,
+        #     '-q',
+        #     '-p',
+        #     '-c', self.cache_directory
+        # ]
+        #
+        # pargs.append(self.tmpdir)
+        # pargs.append(self.destination_directory)
+        # command_output, return_code = generate_stream(pargs)
+        # ----------------------
 
         # Return
         processed = []
@@ -312,19 +345,20 @@ class SlocumMerger(object):
 
             if suff == '.dat':
                 ascii_file = os.path.join(self.destination_directory, fname)
+                pair_files = binary_files[0:2]
                 if os.path.isfile(ascii_file):
                     processed.append({
                         'ascii': ascii_file,
                         'binary': sorted(binary_files)
                     })
                     L.info("Converted {} to {}".format(
-                        ','.join([ os.path.basename(x) for x in sorted(binary_files) ]),
+                        ','.join([ os.path.basename(x) for x in sorted(pair_files) ]),
                         fname
                     ))
                 else:
                     L.warning("{} not an output file".format(x))
 
-                binary_files = []
+                pair_files = []
             else:
                 bf = os.path.join(self.source_directory, fname)
                 if os.path.isfile(x):
